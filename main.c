@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <string.h>
-#include <windows.h>
 #include <time.h>
 
 void Tela1();
@@ -48,13 +47,11 @@ void Tela1()
 
         case 3:
             printf("\nFechando o programa...\n");
-            Sleep(1500);
             exit(0);
             break;
 
         default:
             printf("Resposta inválida! tente novamente");
-            Sleep(1500);
             Tela1();
             break;
 
@@ -95,7 +92,6 @@ void Tela2(){
     printf("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     printf("Seu usuário:%s      \n",usu);
     printf("Sua senha:%s      \n",senhaString);
-    Sleep(1000);
     system("pause");
     Tela1();
 }
@@ -114,13 +110,11 @@ void Tela3()
     if(strcmp(usuConferir,usu)==0||strcmp(senhaConferir,senhaString)==0)
     {
         printf("\nUsuário correto! Seja muito bem vindo %s!",usuConferir);
-        Sleep(1000);
         Tela4();
     }
     else
     {
         printf("\nDados incorretos... Tente novamente\n");
-        Sleep(1000);
         system("pause");
         Tela1();
     }
@@ -149,7 +143,6 @@ void Tela4(){
 
         default:
             printf("\nResposta inválida! digite novamente");
-            Sleep(1000);
             Tela4();
     }
 }
