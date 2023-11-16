@@ -1,8 +1,11 @@
+#include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
 #include <string.h>
 #include <time.h>
+#include <inttypes.h>
 
 void Tela1();
 void Tela2();
@@ -19,44 +22,49 @@ float GeralCusto;
 int norte, nordeste, sul, sudeste, centroOeste;
 
 int main(void){
-    setlocale(LC_ALL,"portuguese");
-    Tela1();
-    return 0;
+	setlocale(LC_ALL,	"pt-BR");
+  Tela1();
+  return 0;
 }
+
+void escreverRoteiro(char *roteiro[], unsigned int tamanho)
+{
+	printf("-------------------------\n");
+	for (int i = 0; i < tamanho; i++) {
+		printf("%s", roteiro[i]);
+
+		if (i == 0) {
+			printf("-------------------------\n");
+		}
+	}
+}
+
 void Tela1()
 {
-    system("cls");
-    int resp;
-    printf("-------------------------------------------\n");
-    printf("|      Olá, você ja possui um login?      |\n");
-    printf("-------------------------------------------\n\n");
-    printf("\nDigite 1 para Sim\n\n");
-    printf("\nDigita 2 para Não\n\n");
-    printf("\nDigite 3 para fechar o programa\n\n");
-    scanf("%d",&resp);
+		char *roteiro[] = {"Olá, você já possui um login?\n", "\nDigite 1 para Sim\n\n", "\nDigite 2 para Não\n\n", "\nDigite 3 para fechar o programa\n"};
 
-    switch(resp){
+		size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+    uint8_t escolha;
+
+		escreverRoteiro(roteiro, tamanhoRoteiro);
+    scanf("%hhu", &escolha);
+
+    switch(escolha){
         case 1:
-            //Tela4();
             Tela3();
             break;
-
         case 2:
             Tela2();
             break;
-
         case 3:
             printf("\nFechando o programa...\n");
             exit(0);
             break;
-
         default:
             printf("Resposta inválida! tente novamente");
             Tela1();
             break;
-
     }
-
 }
 void Tela2(){
     int numeroSenha;
@@ -293,9 +301,3 @@ void Tela7(){
        break;
     }
 }
-
-
-
-
-
-
