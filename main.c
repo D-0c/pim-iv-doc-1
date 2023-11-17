@@ -22,26 +22,28 @@ float GeralCusto;
 int norte, nordeste, sul, sudeste, centroOeste;
 
 int main(void){
-	setlocale(LC_ALL,	"pt-BR");
+	setlocale(LC_ALL, "Portuguese");
   Tela1();
   return 0;
 }
 
 void escreverRoteiro(char *roteiro[], unsigned int tamanho)
 {
-	printf("-------------------------\n");
+	char barra[] = "-------------------------\n";
+
+	printf("%s", barra);
 	for (int i = 0; i < tamanho; i++) {
 		printf("%s", roteiro[i]);
 
 		if (i == 0) {
-			printf("-------------------------\n");
+			printf("%s", barra);
 		}
 	}
 }
 
 void Tela1()
 {
-		char *roteiro[] = {"Olá, você já possui um login?\n", "\nDigite 1 para Sim\n\n", "\nDigite 2 para Não\n\n", "\nDigite 3 para fechar o programa\n"};
+		char *roteiro[] = {"Olï¿½, vocï¿½ jï¿½ possui um login?\n", "\nDigite 1 para Sim\n\n", "\nDigite 2 para Nï¿½o\n\n", "\nDigite 3 para fechar o programa\n"};
 
 		size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
     uint8_t escolha;
@@ -61,7 +63,7 @@ void Tela1()
             exit(0);
             break;
         default:
-            printf("Resposta inválida! tente novamente");
+            printf("Resposta invï¿½lida! tente novamente");
             Tela1();
             break;
     }
@@ -98,7 +100,7 @@ void Tela2(){
     sprintf(senhaString,"%d",numeroSenha);
 
     printf("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    printf("Seu usuário:%s      \n",usu);
+    printf("Seu usuï¿½rio:%s      \n",usu);
     printf("Sua senha:%s      \n",senhaString);
     system("pause");
     Tela1();
@@ -111,13 +113,13 @@ void Tela3()
     printf("----------------------------\n");
     printf("|     Realize seu login     |\n");
     printf("----------------------------\n\n");
-    printf("Digite o seu usuário\n");
+    printf("Digite o seu usuï¿½rio\n");
     scanf("%s",&usuConferir);
     printf("\nDigite a o sua senha\n");
     scanf("%s",&senhaConferir);
     if(strcmp(usuConferir,usu)==0||strcmp(senhaConferir,senhaString)==0)
     {
-        printf("\nUsuário correto! Seja muito bem vindo %s!",usuConferir);
+        printf("\nUsuï¿½rio correto! Seja muito bem vindo %s!",usuConferir);
         Tela4();
     }
     else
@@ -133,10 +135,10 @@ void Tela4(){
     printf("--------------------------------------\n");
     printf("|       O que deseja fazer,%s        |\n",usu);
     printf("--------------------------------------\n\n");
-    printf("Opções:\n");
+    printf("Opï¿½ï¿½es:\n");
     printf("[1] Realizar cadastro de uma nova empresa\n");
-    printf("[2] Realizar cadastro de uma nova um novo serviço\n");
-    printf("[3] Conferir relatórios\n");
+    printf("[2] Realizar cadastro de uma nova um novo serviï¿½o\n");
+    printf("[3] Conferir relatï¿½rios\n");
     scanf("%d",&resp);
     switch(resp){
         case 1:
@@ -150,7 +152,7 @@ void Tela4(){
             break;
 
         default:
-            printf("\nResposta inválida! digite novamente");
+            printf("\nResposta invï¿½lida! digite novamente");
             Tela4();
     }
 }
@@ -182,9 +184,9 @@ void Tela6(){
     scanf("%s",&nome);
     printf("\nInsira o nome fantasia da empresa\n");
     scanf("%s",&nomeFantasia);
-    printf("\nInsira a razão social da empresa\n");
+    printf("\nInsira a razï¿½o social da empresa\n");
     scanf("%s",&razaoSocial);
-    printf("\nInsira o número de funcionários da empresa\n");
+    printf("\nInsira o nï¿½mero de funcionï¿½rios da empresa\n");
     scanf("%s",&funcionarios);
     printf("\nInsira o CEP da empresa\n");
     scanf("%s",&cep);
@@ -194,7 +196,7 @@ void Tela6(){
     scanf("%s",&bairro);
     printf("\nInsira a cidade da empresa\n");
     scanf("%s",&cidade);
-    printf("\nInsira o número de endereço empresa\n");
+    printf("\nInsira o nï¿½mero de endereï¿½o empresa\n");
     scanf("%s",&numeroCep);
     printf("\nInsira o telefone da empresa\n");
     scanf("%s",&telefone);
@@ -212,17 +214,17 @@ void Tela6(){
         printf("Erro ao abrir o arquivo.\n");
         return;
     }
-    printf("\nInformações salvas em empresa.txt!\n");
+    printf("\nInformaï¿½ï¿½es salvas em empresa.txt!\n");
     fprintf(file,"CNPJ da empresa: %s \n",cnpj);
     fprintf(file,"Nome da empresa: %s \n",nome);
     fprintf(file,"Nome fantasia da empresa: %s \n",nomeFantasia);
-    fprintf(file,"Razão social da empresa: %s \n",razaoSocial);
-    fprintf(file,"Quantidade de funcionários: %s \n",funcionarios);
+    fprintf(file,"Razï¿½o social da empresa: %s \n",razaoSocial);
+    fprintf(file,"Quantidade de funcionï¿½rios: %s \n",funcionarios);
     fprintf(file,"CEP da empresa: %s \n",cep);
     fprintf(file,"Rua da empresa: %s \n",rua);
     fprintf(file,"Bairro da empresa: %s \n",bairro);
     fprintf(file,"Cidade da empresa: %s \n",cidade);
-    fprintf(file,"Número de endereço empresa: %s \n",numeroCep);
+    fprintf(file,"Nï¿½mero de endereï¿½o empresa: %s \n",numeroCep);
     fprintf(file,"Telefone da empresa: %s \n",telefone);
     fprintf(file,"Email da empresa: %s \n",email);
     fprintf(file,"CPF do dono da empresa: %s \n",cpf);
@@ -239,24 +241,24 @@ void Tela5(){
     float residuo, custo, custoRec, valor;
     printf("-------------------------------\n");
     printf("|         Cadastre um         |\n");
-    printf("|         novo serviço        |\n");
+    printf("|         novo serviï¿½o        |\n");
     printf("-------------------------------\n\n");
 
     printf("Insira o nome da empresa: ");
     scanf("%s",&nome);
-    printf("\nQuantos kilos de residuo serão tratados?:  ");
+    printf("\nQuantos kilos de residuo serï¿½o tratados?:  ");
     scanf("%f",&residuo);
     GeralResiduo+=residuo;
 
-    printf("\nQual será o custo operacional desse serviço?: ");
+    printf("\nQual serï¿½ o custo operacional desse serviï¿½o?: ");
     scanf("%f",&custo);
     GeralCusto+=custo;
 
-    printf("\nQual será o valor cobrado por esse serviço?: ");
+    printf("\nQual serï¿½ o valor cobrado por esse serviï¿½o?: ");
     scanf("%f",&valor);
     GeralValor+=valor;
 
-    printf("\nQual é a região da empresa?");
+    printf("\nQual ï¿½ a regiï¿½o da empresa?");
     scanf("%f",&regiao);
 
     FILE *file =fopen("servicos.txt","a");
@@ -264,8 +266,8 @@ void Tela5(){
         printf("Erro ao abrir o arquivo.\n");
         return;
     }
-    printf("Informações registradas no arquivo sericos.txt!\n");
-    fprintf(file,"\nNome da empresa: %s, Qtd de resíduos: %.2fKG, Despesas:R$%.2f, Valor do serviço: R$%.2f, Região: %s\n",nome,residuo,custo,valor, regiao);
+    printf("Informaï¿½ï¿½es registradas no arquivo sericos.txt!\n");
+    fprintf(file,"\nNome da empresa: %s, Qtd de resï¿½duos: %.2fKG, Despesas:R$%.2f, Valor do serviï¿½o: R$%.2f, Regiï¿½o: %s\n",nome,residuo,custo,valor, regiao);
     fclose(file);
     system("pause");
     Tela4();
@@ -282,18 +284,18 @@ void Tela7(){
         }
     system("cls");
     printf("--------------------------------\n");
-    printf("|       Confira relatórios      |\n");
+    printf("|       Confira relatï¿½rios      |\n");
     printf("--------------------------------\n\n");
-    printf("\nTotal de resíduos tratados (em kg): %.2f\n",GeralResiduo);
+    printf("\nTotal de resï¿½duos tratados (em kg): %.2f\n",GeralResiduo);
     printf("\nDespesas totais: R$%.2f \n",GeralCusto);
     printf("\nFaturamento total: R$%.2f\n",GeralValor);
-    printf("\nTemos a opção de salvar as informações em uma arquivo txt, gostaria de salva-las?\nDigite 1 para sim\nDigite 2 para não\n");
+    printf("\nTemos a opï¿½ï¿½o de salvar as informaï¿½ï¿½es em uma arquivo txt, gostaria de salva-las?\nDigite 1 para sim\nDigite 2 para nï¿½o\n");
     scanf("%d",&resp);
     switch(resp){
     case 1:
-        fprintf(file,"Resíduos tratados: %.2fKG\nDespesas totais:R$%.2f\nFaturamento total:R$%.2f\n",GeralResiduo,GeralCusto,GeralValor);
+        fprintf(file,"Resï¿½duos tratados: %.2fKG\nDespesas totais:R$%.2f\nFaturamento total:R$%.2f\n",GeralResiduo,GeralCusto,GeralValor);
         fclose(file);
-        printf("\nAs informações foram salvas no arquivo 'relatorio.txt'");
+        printf("\nAs informaï¿½ï¿½es foram salvas no arquivo 'relatorio.txt'");
     case 2:
        fclose(file);
        system("pause");
