@@ -7,43 +7,47 @@
 #include <time.h>
 #include <inttypes.h>
 
-void Tela1();
-void Tela2();
-void Tela3();
-void Tela4();
-void Tela5();
-void Tela6();
-void Tela7();
+void Tela1(), Tela2(), Tela3(), Tela4(), Tela5(), Tela6(), Tela7();
 char usu[50];
 char senhaString[10];
-float GeralResiduo;
-float GeralValor;
-float GeralCusto;
+float GeralResiduo, GeralValor, GeralCusto;
 int norte, nordeste, sul, sudeste, centroOeste;
 
 int main(void){
-	setlocale(LC_ALL, "Portuguese");
-  Tela1();
-  return 0;
+    setlocale(LC_ALL, "Portuguese");
+    Tela1();
+    return 0;
 }
+
+void decorarFrase(char *frase)
+{
+	signed long tamanhoFrase = strlen(frase);
+
+	for (signed int i = 0; i < tamanhoFrase; i++) {
+		printf("+");
+	}
+
+	printf("\n");
+}
+
 
 void escreverRoteiro(char *roteiro[], unsigned int tamanho)
 {
-	char barra[] = "-------------------------\n";
-
-	printf("%s", barra);
+	decorarFrase(roteiro[0]);
 	for (int i = 0; i < tamanho; i++) {
-		printf("%s", roteiro[i]);
+		printf("  %s", roteiro[i]);
 
 		if (i == 0) {
-			printf("%s", barra);
+			decorarFrase(roteiro[i]);
 		}
 	}
+
+	printf("\n-> ");
 }
 
 void Tela1()
 {
-		char *roteiro[] = {"Ol�, voc� j� possui um login?\n", "\nDigite 1 para Sim\n\n", "\nDigite 2 para N�o\n\n", "\nDigite 3 para fechar o programa\n"};
+		char *roteiro[] = {"Olá, você já possui um login?\n", "\nDigite (1) para não\n\n", "\nDigite (2) para não\n\n", "\nDigite (3) para fechar o programa\n"};
 
 		size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
     uint8_t escolha;
@@ -74,6 +78,10 @@ void Tela2(){
     char usuNumero[10];
     char nome[50];
     srand(time(0));
+
+		char *roteiro[] = {"Olá, você já possui um login?\n", "\nDigite [1] para não\n\n", "\nDigite [2] para não\n\n", "\nDigite [3] para fechar o programa\n"};
+
+		size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
 
     system("cls");
     printf("--------------------------\n");
