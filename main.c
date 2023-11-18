@@ -19,35 +19,25 @@ int main(void){
     return 0;
 }
 
-void decorarFrase(char *frase)
-{
-	signed long tamanhoFrase = strlen(frase);
-
-	for (signed int i = 0; i < tamanhoFrase; i++) {
-		printf("+");
-	}
-
-	printf("\n");
-}
-
-
 void escreverRoteiro(char *roteiro[], unsigned int tamanho)
 {
-	decorarFrase(roteiro[0]);
-	for (int i = 0; i < tamanho; i++) {
-		printf("  %s", roteiro[i]);
+	system("clear");
 
+	for (int i = 0; i < tamanho; i++) {
 		if (i == 0) {
-			decorarFrase(roteiro[i]);
+			printf("[%s]\n\n", roteiro[i]);
+			continue;
 		}
+
+		printf("%s\n\n", roteiro[i]);
 	}
 
-	printf("\n-> ");
+	printf("-> ");
 }
 
 void Tela1()
 {
-		char *roteiro[] = {"Olá, você já possui um login?\n", "\nDigite (1) para não\n\n", "\nDigite (2) para não\n\n", "\nDigite (3) para fechar o programa\n"};
+		char *roteiro[] = {"Olá, você já possui um login?", "Digite (1) para sim", "Digite (2) para não", "Digite (3) para fechar o programa"};
 
 		size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
     uint8_t escolha;
@@ -79,16 +69,10 @@ void Tela2(){
     char nome[50];
     srand(time(0));
 
-		char *roteiro[] = {"Olá, você já possui um login?\n", "\nDigite [1] para não\n\n", "\nDigite [2] para não\n\n", "\nDigite [3] para fechar o programa\n"};
+		char *primeiroRoteiro[] = {"Crie seu login", "Qual o seu nome?"};
+		size_t tamanhoPrimeiroRoteiro = sizeof(primeiroRoteiro) / sizeof(primeiroRoteiro[0]);
+		escreverRoteiro(primeiroRoteiro, tamanhoPrimeiroRoteiro);
 
-		size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
-
-    system("cls");
-    printf("--------------------------\n");
-    printf("|     Crie seu login     |\n");
-    printf("--------------------------\n\n");
-
-    printf("Qual o seu nome?\n");
     scanf("%s",&nome);
 
     for (int i=1;i<=5;i++)
