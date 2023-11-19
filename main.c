@@ -7,7 +7,9 @@
 #include <time.h>
 #include <inttypes.h>
 
-void Tela1(), Tela2(), Tela3(), Tela4(), Tela5(), Tela6(), Tela7();
+struct usuario { char *senha; signed long id; char *nome; };
+
+void Tela1(), Tela2(), Tela3(), Tela4(), Tela5(), Tela6(), Tela7(), telaRegistroSucesso();
 char usu[50];
 char senhaString[10];
 float GeralResiduo, GeralValor, GeralCusto;
@@ -19,25 +21,44 @@ int main(void){
     return 0;
 }
 
+void escreverFrasePadrao(char *frase) {
+		printf("%s\n\n", frase);
+}
+
+struct usuario fabricarUsuario(char *nome, char *senha)
+{
+	struct usuario fabricado;
+
+	srand(time(0));
+
+	signed long id = rand() % 100000000000000000;
+
+	fabricado.nome = nome;
+	fabricado.senha = senha;
+	fabricado.id = id;
+
+	return fabricado;
+}
+
 void escreverRoteiro(char *roteiro[], unsigned int tamanho)
 {
 	system("clear");
 
+	escreverFrasePadrao("(Eco Client, versão: 1.0)");
+
 	for (int i = 0; i < tamanho; i++) {
 		if (i == 0) {
-			printf("[%s]\n\n", roteiro[i]);
+			printf("[!] %s\n\n", roteiro[i]);
 			continue;
 		}
 
-		printf("%s\n\n", roteiro[i]);
+		escreverFrasePadrao(roteiro[i]);
 	}
-
-	printf("-> ");
 }
 
 void Tela1()
 {
-		char *roteiro[] = {"Olá, você já possui um login?", "Digite (1) para sim", "Digite (2) para não", "Digite (3) para fechar o programa"};
+		char *roteiro[] = {"Olá funcionário, você já possui um login?", "Digite (1) para sim", "Digite (2) para não", "Digite (3) para fechar o programa"};
 
 		size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
     uint8_t escolha;
@@ -62,40 +83,39 @@ void Tela1()
             break;
     }
 }
+
+void telaRegistroSucesso()
+{
+	char *roteiro[] = {"Seu novo usuário foi registrado com sucesso.", "Pressione qualquer tecla para continuar..."};
+
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+
+	escreverRoteiro(roteiro, tamanhoRoteiro);
+
+	getchar();
+	getchar();
+}
+
+// Cadastro funcionário.
 void Tela2(){
-    int numeroSenha;
-    int random=0;
-    char usuNumero[10];
-    char nome[50];
-    srand(time(0));
+	char *roteiro[] = {"Crie o seu usuário para o login no sistema."};
 
-		char *primeiroRoteiro[] = {"Crie seu login", "Qual o seu nome?"};
-		size_t tamanhoPrimeiroRoteiro = sizeof(primeiroRoteiro) / sizeof(primeiroRoteiro[0]);
-		escreverRoteiro(primeiroRoteiro, tamanhoPrimeiroRoteiro);
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
 
-    scanf("%s",&nome);
+	escreverRoteiro(roteiro, tamanhoRoteiro);
 
-    for (int i=1;i<=5;i++)
-    {
-        random+= rand()%900;
-    }
-    for (int i=1;i<=5;i++)
-    {
-        numeroSenha+= rand()%9000;
-    }
+	char *nome;
+	char *senha;
 
-    sprintf(usuNumero,"%d",random);
-    strcpy(usu,nome);
-    strcat(usu,usuNumero);
+	escreverFrasePadrao("Digite algum nome de usuário.");
+	scanf("%s", nome);
 
+	escreverFrasePadrao("Crie uma senha para acessar o sistema.");
+	scanf("%s", senha);
 
-    sprintf(senhaString,"%d",numeroSenha);
+	fabricarUsuario(nome, senha);
 
-    printf("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    printf("Seu usu�rio:%s      \n",usu);
-    printf("Sua senha:%s      \n",senhaString);
-    system("pause");
-    Tela1();
+	telaRegistroSucesso();
 }
 void Tela3()
 {
