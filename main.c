@@ -37,8 +37,11 @@ int funcionarioExiste(char *nome, char *linha) {
 	return 0;
 }
 
-int verificarSenhaFuncionario(char *senha, char *linha) {
-	if (strstr(linha, senha)) {
+int verificarSenhaFuncionario(char *nome, char *senha, char *linha) {
+	char entrada[128];
+	sprintf(entrada, "%s;%s", nome, senha);
+
+	if (strcmp(linha, entrada) == 0) {
 		return 1;
 	}
 
@@ -55,7 +58,7 @@ int conectarFuncionario(char *nome, char *senha) {
 
 		if (!funcionarioExiste(nome, copia)) { continue; }
 
-		if (verificarSenhaFuncionario(senha, linha)) { return 1; }
+		if (verificarSenhaFuncionario(nome, senha, linha)) { return 1; }
 	}
 	fclose(arquivo);
 
@@ -170,7 +173,7 @@ void telaLoginSucesso() {
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
 	escreverRoteiro(roteiro, tamanhoRoteiro);
 
-	sleep(8);
+	sleep(6);
 	telaSistema();
 }
 
@@ -179,7 +182,7 @@ void telaLoginIncorreto() {
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
 	escreverRoteiro(roteiro, tamanhoRoteiro);
 
-	sleep(8);
+	sleep(6);
 	telaInicial();
 }
 
