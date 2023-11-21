@@ -128,10 +128,15 @@ void telaInicial()
 	}
 }
 
+void telaSistema() {
+	char *roteiro [] = {"Você está autenticado e no menu principal do sistema.", "Olá, seja bem-vindo", "Nesse menu você consegue acessar todas as funcionalidades de gerenciamento do sistema", "Digite o número da funcionalidade que deseja acessar", "(1) para registrar uma nova empresa no sistema.", "(2) para imprimir o relatório de alguma empresa na tela", "(3) para salvar os relátorios"};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	escreverRoteiro(roteiro, tamanhoRoteiro);
+}
+
 void telaRegistroSucesso()
 {
 	char *roteiro[] = {"Seu novo usuário foi registrado com sucesso.", "Você sera redirecionado para o menu inicial em alguns segundos."};
-
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
 
 	escreverRoteiro(roteiro, tamanhoRoteiro);
@@ -166,7 +171,7 @@ void telaLoginSucesso() {
 	escreverRoteiro(roteiro, tamanhoRoteiro);
 
 	sleep(8);
-	telaInicial();
+	telaSistema();
 }
 
 void telaLoginIncorreto() {
@@ -178,8 +183,7 @@ void telaLoginIncorreto() {
 	telaInicial();
 }
 
-void telaLoginFuncionario()
-{
+void telaLoginFuncionario() {
 	char *roteiro[] = {"Você deve realizar o seu login para acessar o sistema.", "Seja bem vindo novamente funcionário", "Siga as instruções do sistema para realizar o login", "Digite todos os dados como o sistema pede, de forma sequencial"};
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
 	escreverRoteiro(roteiro, tamanhoRoteiro);
