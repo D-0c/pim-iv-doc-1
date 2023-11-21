@@ -22,7 +22,7 @@ struct usuario fabricarUsuario(char *nome, char *senha);
 
 int main(void) {
 	setlocale(LC_ALL, "Portuguese_Brazil");
-	conectarFuncionario("Maria", "matematica180");
+	telaInicial();
 	return 0;
 }
 
@@ -142,11 +142,11 @@ void telaRegistroSucesso()
 }
 
 void telaCadastroFuncionario(){
-	char *roteiro[] = {"Crie o seu usuário para o login no sistema."};
+	char *roteiro[] = {"Olá, você precisa realizar o cadastro de um novo usuário, para posteriormente realizar o login no sistema.", "O sistema precisa que você escolha um nome de usuário e uma senha"};
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
 	escreverRoteiro(roteiro, tamanhoRoteiro);
 
-	char nome[32], senha[64];
+	char nome[48], senha[64];
 
 	escreverFrasePadrao("Digite algum nome de usuário.");
 	scanf("%s", nome);
@@ -154,11 +154,45 @@ void telaCadastroFuncionario(){
 	escreverFrasePadrao("Crie uma senha para acessar o sistema.");
 	scanf("%s", senha);
 
-	fabricarUsuario(nome, senha);
+	struct usuario u = fabricarUsuario(nome, senha);
+	salvarFuncionario(u);
 
 	telaRegistroSucesso();
 }
 
+void telaLoginSucesso() {
+	char *roteiro[] = {"Você realizou o login com sucesso no sistema.", "Olá, seja bem-vindo novamente ao sistema", "Lembre-se que agora você está autenticado como funcionário", "Você sera redirecionado ao menu do sistema em alguns segundos."};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	escreverRoteiro(roteiro, tamanhoRoteiro);
+
+	sleep(8);
+	telaInicial();
+}
+
+void telaLoginIncorreto() {
+	char *roteiro[] = {"Oops... Parece que o seu usuário não existe, ou a senha está incorreta.", "Por favor, tente realizar o login no sistema novamente", "Caso ainda não tenha um usuário, realize o cadastro no menu principal", "Você seria redirecionado ao menu principal em alguns segundos"};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	escreverRoteiro(roteiro, tamanhoRoteiro);
+
+	sleep(8);
+	telaInicial();
+}
+
 void telaLoginFuncionario()
 {
+	char *roteiro[] = {"Você deve realizar o seu login para acessar o sistema.", "Seja bem vindo novamente funcionário", "Siga as instruções do sistema para realizar o login", "Digite todos os dados como o sistema pede, de forma sequencial"};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	escreverRoteiro(roteiro, tamanhoRoteiro);
+
+	char nome[48], senha[64];
+
+	escreverFrasePadrao("Digite o seu nome de usuário");
+	scanf("%s", nome);
+
+	escreverFrasePadrao("Digite a sua senha");
+	scanf("%s", senha);
+
+	if (!conectarFuncionario(nome, senha)) { telaLoginIncorreto(); }
+
+	telaLoginSucesso();
 }
