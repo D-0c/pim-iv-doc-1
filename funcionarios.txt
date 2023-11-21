@@ -1,8 +1,1 @@
-Fin;dxxy1990
-Lucas;respeito182
-Maria;matematica180
-Marcelo;123456
-Gabriela;123
-Juniore;1234721
-Kitana;123
-Juniore;abcde
+macaco;171

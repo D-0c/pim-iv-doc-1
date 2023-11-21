@@ -50,6 +50,9 @@ int verificarSenhaFuncionario(char *nome, char *senha, char *linha) {
 
 int conectarFuncionario(char *nome, char *senha) {
 	FILE *arquivo = fopen("funcionarios.txt", "r");
+
+	if (arquivo == 0) { return 0; }
+
 	char linha[128];
 
 	while (fscanf(arquivo, "%s\n", linha) > 0) {
