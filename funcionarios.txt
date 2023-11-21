@@ -1,1 +1,3 @@
-Fin,Kin,1986741955;Fin,Kin,1223382014;Fin,Kin,1223382014;Fin,Kin,1223382014;Fin,Kin,1996188799;
+Fin;dxxy1990
+Lucas;respeito182
+Maria;matematica180
