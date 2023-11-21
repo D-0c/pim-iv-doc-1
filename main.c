@@ -6,300 +6,197 @@
 #include <string.h>
 #include <time.h>
 #include <inttypes.h>
+#ifdef __unix__
+# include <unistd.h>
+#elif defined _WIN32
+# include <windows.h>
+#define sleep(x) Sleep(1000 * (x))
+#endif
 
-void Tela1();
-void Tela2();
-void Tela3();
-void Tela4();
-void Tela5();
-void Tela6();
-void Tela7();
-char usu[50];
-char senhaString[10];
-float GeralResiduo;
-float GeralValor;
-float GeralCusto;
-int norte, nordeste, sul, sudeste, centroOeste;
+struct usuario { char *nome; char *senha; };
 
-int main(void){
-	setlocale(LC_ALL, "Portuguese");
-  Tela1();
-  return 0;
+void telaInicial(), telaCadastroFuncionario(), telaLoginFuncionario();
+int conectarFuncionario(char *nome, char *senha), salvarFuncionario(struct usuario u);
+struct usuario fabricarUsuario(char *nome, char *senha);
+
+
+int main(void) {
+	setlocale(LC_ALL, "Portuguese_Brazil");
+	telaInicial();
+	return 0;
+}
+
+void escreverFrasePadrao(char *frase) {
+	printf("%s\n\n", frase);
+}
+
+int funcionarioExiste(char *nome, char *linha) {
+	char *token = strtok(linha, ";");
+	if (strcmp(nome, token) == 0) { return 1; }
+
+	return 0;
+}
+
+int verificarSenhaFuncionario(char *senha, char *linha) {
+	if (strstr(linha, senha)) {
+		return 1;
+	}
+
+	return 0;
+}
+
+int conectarFuncionario(char *nome, char *senha) {
+	FILE *arquivo = fopen("funcionarios.txt", "r");
+	char linha[128];
+
+	while (fscanf(arquivo, "%s\n", linha) > 0) {
+		char copia[128];
+		strcpy(copia, linha);
+
+		if (!funcionarioExiste(nome, copia)) { continue; }
+
+		if (verificarSenhaFuncionario(senha, linha)) { return 1; }
+	}
+	fclose(arquivo);
+
+	return 0;
+}
+
+int salvarFuncionario(struct usuario u) {
+	char *linha = malloc(sizeof(u));
+	FILE *arquivo = fopen("funcionarios.txt", "a");
+
+	sprintf(linha, "%s;%s\n", u.nome, u.senha);
+	fprintf(arquivo, "%s", linha);
+	
+	free(linha);
+	fclose(arquivo);
+
+	return 0;
+}
+
+struct usuario fabricarUsuario(char *nome, char *senha)
+{
+	struct usuario fabricado;
+
+	fabricado.nome = nome;
+	fabricado.senha = senha;
+
+	return fabricado;
 }
 
 void escreverRoteiro(char *roteiro[], unsigned int tamanho)
 {
-	char barra[] = "-------------------------\n";
+	system("clear");
 
-	printf("%s", barra);
+	escreverFrasePadrao("(Eco Client, versão: 1.0)");
+
 	for (int i = 0; i < tamanho; i++) {
-		printf("%s", roteiro[i]);
-
 		if (i == 0) {
-			printf("%s", barra);
+			printf("[!] %s\n\n", roteiro[i]);
+			continue;
 		}
+
+		escreverFrasePadrao(roteiro[i]);
 	}
 }
 
-void Tela1()
+void telaInicial()
 {
-		char *roteiro[] = {"Ol�, voc� j� possui um login?\n", "\nDigite 1 para Sim\n\n", "\nDigite 2 para N�o\n\n", "\nDigite 3 para fechar o programa\n"};
+	char *roteiro[] = {"Olá funcionário, você já possui um login?", "Digite (1) para sim", "Digite (2) para não", "Digite (3) para fechar o programa"};
 
-		size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
-    uint8_t escolha;
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	uint8_t escolha;
 
-		escreverRoteiro(roteiro, tamanhoRoteiro);
-    scanf("%hhu", &escolha);
+	escreverRoteiro(roteiro, tamanhoRoteiro);
+	scanf("%hhu", &escolha);
 
-    switch(escolha){
-        case 1:
-            Tela3();
-            break;
-        case 2:
-            Tela2();
-            break;
-        case 3:
-            printf("\nFechando o programa...\n");
-            exit(0);
-            break;
-        default:
-            printf("Resposta inv�lida! tente novamente");
-            Tela1();
-            break;
-    }
+	switch(escolha) {
+		case 1:
+			telaLoginFuncionario();
+			break;
+		case 2:
+			telaCadastroFuncionario();
+			break;
+		case 3:
+			printf("\nFechando o programa...\n");
+			exit(0);
+			break;
+		default:
+			printf("Resposta inválida, tente novamente!");
+			break;
+	}
 }
-void Tela2(){
-    int numeroSenha;
-    int random=0;
-    char usuNumero[10];
-    char nome[50];
-    srand(time(0));
 
-    system("cls");
-    printf("--------------------------\n");
-    printf("|     Crie seu login     |\n");
-    printf("--------------------------\n\n");
-
-    printf("Qual o seu nome?\n");
-    scanf("%s",&nome);
-
-    for (int i=1;i<=5;i++)
-    {
-        random+= rand()%900;
-    }
-    for (int i=1;i<=5;i++)
-    {
-        numeroSenha+= rand()%9000;
-    }
-
-    sprintf(usuNumero,"%d",random);
-    strcpy(usu,nome);
-    strcat(usu,usuNumero);
-
-
-    sprintf(senhaString,"%d",numeroSenha);
-
-    printf("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    printf("Seu usu�rio:%s      \n",usu);
-    printf("Sua senha:%s      \n",senhaString);
-    system("pause");
-    Tela1();
+void telaSistema() {
+	char *roteiro [] = {"Você está autenticado e no menu principal do sistema.", "Olá, seja bem-vindo", "Nesse menu você consegue acessar todas as funcionalidades de gerenciamento do sistema", "Digite o número da funcionalidade que deseja acessar", "(1) para registrar uma nova empresa no sistema.", "(2) para imprimir o relatório de alguma empresa na tela", "(3) para salvar os relátorios"};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	escreverRoteiro(roteiro, tamanhoRoteiro);
 }
-void Tela3()
+
+void telaRegistroSucesso()
 {
-    char usuConferir[100];
-    char senhaConferir[10];
-    system("cls");
-    printf("----------------------------\n");
-    printf("|     Realize seu login     |\n");
-    printf("----------------------------\n\n");
-    printf("Digite o seu usu�rio\n");
-    scanf("%s",&usuConferir);
-    printf("\nDigite a o sua senha\n");
-    scanf("%s",&senhaConferir);
-    if(strcmp(usuConferir,usu)==0||strcmp(senhaConferir,senhaString)==0)
-    {
-        printf("\nUsu�rio correto! Seja muito bem vindo %s!",usuConferir);
-        Tela4();
-    }
-    else
-    {
-        printf("\nDados incorretos... Tente novamente\n");
-        system("pause");
-        Tela1();
-    }
-}
-void Tela4(){
-    system("cls");
-    int resp;
-    printf("--------------------------------------\n");
-    printf("|       O que deseja fazer,%s        |\n",usu);
-    printf("--------------------------------------\n\n");
-    printf("Op��es:\n");
-    printf("[1] Realizar cadastro de uma nova empresa\n");
-    printf("[2] Realizar cadastro de uma nova um novo servi�o\n");
-    printf("[3] Conferir relat�rios\n");
-    scanf("%d",&resp);
-    switch(resp){
-        case 1:
-            Tela6();
-            break;
-        case 2:
-            Tela5();
-            break;
-        case 3:
-            Tela7();
-            break;
+	char *roteiro[] = {"Seu novo usuário foi registrado com sucesso.", "Você sera redirecionado para o menu inicial em alguns segundos."};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
 
-        default:
-            printf("\nResposta inv�lida! digite novamente");
-            Tela4();
-    }
-}
-void Tela6(){
+	escreverRoteiro(roteiro, tamanhoRoteiro);
 
-    char cpf[20];
-    char nomeDo[50];
-    char telefoneD[50];
-    char cnpj[20];
-    char nome[50];
-    char razaoSocial[50];
-    char nomeFantasia[50];
-    char cep[50];
-    char rua[50];
-    char bairro[50];
-    char cidade[50];
-    char numeroCep[10];
-    char telefone[25];
-    char email[50];
-    char funcionarios[20];
-    system("cls");
-    printf("-------------------------------\n");
-    printf("|     Cadastre um cliente!     |\n");
-    printf("-------------------------------\n\n");
+	sleep(3);
 
-    printf("Insira o CNPJ da empresa\n");
-    scanf("%s",&cnpj);
-    printf("\nInsira o nome da empresa\n");
-    scanf("%s",&nome);
-    printf("\nInsira o nome fantasia da empresa\n");
-    scanf("%s",&nomeFantasia);
-    printf("\nInsira a raz�o social da empresa\n");
-    scanf("%s",&razaoSocial);
-    printf("\nInsira o n�mero de funcion�rios da empresa\n");
-    scanf("%s",&funcionarios);
-    printf("\nInsira o CEP da empresa\n");
-    scanf("%s",&cep);
-    printf("\nInsira a rua da empresa\n");
-    scanf("%s",&rua);
-    printf("\nInsira o bairro da empresa\n");
-    scanf("%s",&bairro);
-    printf("\nInsira a cidade da empresa\n");
-    scanf("%s",&cidade);
-    printf("\nInsira o n�mero de endere�o empresa\n");
-    scanf("%s",&numeroCep);
-    printf("\nInsira o telefone da empresa\n");
-    scanf("%s",&telefone);
-    printf("\nInsira o e-mail da empresa\n");
-    scanf("%s",&email);
-    printf("\nInsira o nome do dono da empresa\n");
-    scanf("%s",&nomeDo);
-    printf("\nInsira o CPF do dono da empresa\n");
-    scanf("%s",&cpf);
-    printf("\nInsira o telefone do dono da empresa\n");
-    scanf("%s",&telefoneD);
-
-    FILE *file =fopen("empresas_cadastradas.txt","a");
-    if (file == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
-        return;
-    }
-    printf("\nInforma��es salvas em empresa.txt!\n");
-    fprintf(file,"CNPJ da empresa: %s \n",cnpj);
-    fprintf(file,"Nome da empresa: %s \n",nome);
-    fprintf(file,"Nome fantasia da empresa: %s \n",nomeFantasia);
-    fprintf(file,"Raz�o social da empresa: %s \n",razaoSocial);
-    fprintf(file,"Quantidade de funcion�rios: %s \n",funcionarios);
-    fprintf(file,"CEP da empresa: %s \n",cep);
-    fprintf(file,"Rua da empresa: %s \n",rua);
-    fprintf(file,"Bairro da empresa: %s \n",bairro);
-    fprintf(file,"Cidade da empresa: %s \n",cidade);
-    fprintf(file,"N�mero de endere�o empresa: %s \n",numeroCep);
-    fprintf(file,"Telefone da empresa: %s \n",telefone);
-    fprintf(file,"Email da empresa: %s \n",email);
-    fprintf(file,"CPF do dono da empresa: %s \n",cpf);
-    fprintf(file,"Nome do dono da empresa: %s \n",nomeDo);
-    fprintf(file,"Telefone do dono da empresa: %s \n",telefoneD);
-    fclose(file);
-    system("pause");
-    Tela4();
-}
-void Tela5(){
-    system("cls");
-    char nome[20];
-    char regiao[15];
-    float residuo, custo, custoRec, valor;
-    printf("-------------------------------\n");
-    printf("|         Cadastre um         |\n");
-    printf("|         novo servi�o        |\n");
-    printf("-------------------------------\n\n");
-
-    printf("Insira o nome da empresa: ");
-    scanf("%s",&nome);
-    printf("\nQuantos kilos de residuo ser�o tratados?:  ");
-    scanf("%f",&residuo);
-    GeralResiduo+=residuo;
-
-    printf("\nQual ser� o custo operacional desse servi�o?: ");
-    scanf("%f",&custo);
-    GeralCusto+=custo;
-
-    printf("\nQual ser� o valor cobrado por esse servi�o?: ");
-    scanf("%f",&valor);
-    GeralValor+=valor;
-
-    printf("\nQual � a regi�o da empresa?");
-    scanf("%f",&regiao);
-
-    FILE *file =fopen("servicos.txt","a");
-    if (file == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
-        return;
-    }
-    printf("Informa��es registradas no arquivo sericos.txt!\n");
-    fprintf(file,"\nNome da empresa: %s, Qtd de res�duos: %.2fKG, Despesas:R$%.2f, Valor do servi�o: R$%.2f, Regi�o: %s\n",nome,residuo,custo,valor, regiao);
-    fclose(file);
-    system("pause");
-    Tela4();
+	telaInicial();
 }
 
+void telaCadastroFuncionario(){
+	char *roteiro[] = {"Olá, você precisa realizar o cadastro de um novo usuário, para posteriormente realizar o login no sistema.", "O sistema precisa que você escolha um nome de usuário e uma senha"};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	escreverRoteiro(roteiro, tamanhoRoteiro);
 
+	char nome[48], senha[64];
 
-void Tela7(){
-    int resp;
-    FILE *file =fopen("relatorio.txt","w");
-        if (file == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
-        return;
-        }
-    system("cls");
-    printf("--------------------------------\n");
-    printf("|       Confira relat�rios      |\n");
-    printf("--------------------------------\n\n");
-    printf("\nTotal de res�duos tratados (em kg): %.2f\n",GeralResiduo);
-    printf("\nDespesas totais: R$%.2f \n",GeralCusto);
-    printf("\nFaturamento total: R$%.2f\n",GeralValor);
-    printf("\nTemos a op��o de salvar as informa��es em uma arquivo txt, gostaria de salva-las?\nDigite 1 para sim\nDigite 2 para n�o\n");
-    scanf("%d",&resp);
-    switch(resp){
-    case 1:
-        fprintf(file,"Res�duos tratados: %.2fKG\nDespesas totais:R$%.2f\nFaturamento total:R$%.2f\n",GeralResiduo,GeralCusto,GeralValor);
-        fclose(file);
-        printf("\nAs informa��es foram salvas no arquivo 'relatorio.txt'");
-    case 2:
-       fclose(file);
-       system("pause");
-       Tela4();
-       break;
-    }
+	escreverFrasePadrao("Digite algum nome de usuário.");
+	scanf("%s", nome);
+
+	escreverFrasePadrao("Crie uma senha para acessar o sistema.");
+	scanf("%s", senha);
+
+	struct usuario u = fabricarUsuario(nome, senha);
+	salvarFuncionario(u);
+
+	telaRegistroSucesso();
+}
+
+void telaLoginSucesso() {
+	char *roteiro[] = {"Você realizou o login com sucesso no sistema.", "Olá, seja bem-vindo novamente ao sistema", "Lembre-se que agora você está autenticado como funcionário", "Você sera redirecionado ao menu do sistema em alguns segundos."};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	escreverRoteiro(roteiro, tamanhoRoteiro);
+
+	sleep(8);
+	telaSistema();
+}
+
+void telaLoginIncorreto() {
+	char *roteiro[] = {"Oops... Parece que o seu usuário não existe, ou a senha está incorreta.", "Por favor, tente realizar o login no sistema novamente", "Caso ainda não tenha um usuário, realize o cadastro no menu principal", "Você seria redirecionado ao menu principal em alguns segundos"};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	escreverRoteiro(roteiro, tamanhoRoteiro);
+
+	sleep(8);
+	telaInicial();
+}
+
+void telaLoginFuncionario() {
+	char *roteiro[] = {"Você deve realizar o seu login para acessar o sistema.", "Seja bem vindo novamente funcionário", "Siga as instruções do sistema para realizar o login", "Digite todos os dados como o sistema pede, de forma sequencial"};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	escreverRoteiro(roteiro, tamanhoRoteiro);
+
+	char nome[48], senha[64];
+
+	escreverFrasePadrao("Digite o seu nome de usuário");
+	scanf("%s", nome);
+
+	escreverFrasePadrao("Digite a sua senha");
+	scanf("%s", senha);
+
+	if (!conectarFuncionario(nome, senha)) { telaLoginIncorreto(); }
+
+	telaLoginSucesso();
 }
