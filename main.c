@@ -17,17 +17,48 @@ struct usuario { char *nome; char *senha; };
 struct empresa { char *responsavel; char *cpf; char *nomeEmpresa; char *cnpj; char *razaoSocial; 
 								 char *nomeFantasia; char* endereco; char *email; char *abertura; };
 
+struct relatorio { char *cnpj; unsigned int totalInsumosSemestre; unsigned int totalGastosMensais; };
+
 void telaInicial(), telaCadastroFuncionario(), telaLoginFuncionario(), telaSistema();
 int conectarFuncionario(char *nome, char *senha), salvarFuncionario(struct usuario u), salvarEmpresa(struct empresa e);
 struct usuario fabricarUsuario(char *nome, char *senha);
 struct empresa fabricarEmpresa(char *responsavel, char *cpf, char *nomeEmpresa, char *cnpj, char *razaoSocial, char *nomeFantasia, char *endereco, char *email, char *abertura);
 
 
+
+int salvarRelatorio(struct relatorio r) {
+	char nomeArquivo[64];
+
+	sprintf(nomeArquivo, "relatorio-%s.txt", r.cnpj);
+
+	FILE *f = fopen(nomeArquivo, "w");
+
+	char linha[128];
+
+	sprintf(linha, "%s;%i;%i\n", r.cnpj, r.totalInsumosSemestre, r.totalGastosMensais);
+	fprintf(f, "%s", linha);
+
+	fclose(f);
+
+	return 1;
+}
+
+struct relatorio fabricarRelatorio(char *cnpj, unsigned int totalInsumosSemestre, unsigned int totalGastosMensais) {
+	struct relatorio r;
+
+	r.cnpj = cnpj;
+	r.totalInsumosSemestre = totalInsumosSemestre;
+	r.totalGastosMensais = totalGastosMensais;
+
+	return r;
+}
+
 int main(void) {
 	setlocale(LC_ALL, "Portuguese_Brazil");
 	telaInicial();
 	return 0;
 }
+
 
 void escreverFrasePadrao(char *frase) {
 	printf("%s\n\n", frase);
@@ -221,8 +252,10 @@ void telaRegistroEmpresa() {
 	scanf("%31s", abertura);
 
 	struct empresa e = fabricarEmpresa(responsavel, cpf, nomeEmpresa, cnpj, razaoSocial, nomeFantasia, endereco, email, abertura);
+	struct relatorio r = fabricarRelatorio(e.cnpj, 0, 0);
 
 	salvarEmpresa(e);
+	salvarRelatorio(r);
 	telaRegistroEmpresaSucesso();
 }
 
