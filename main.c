@@ -17,17 +17,46 @@ struct usuario { char *nome; char *senha; };
 struct empresa { char *responsavel; char *cpf; char *nomeEmpresa; char *cnpj; char *razaoSocial; 
 								 char *nomeFantasia; char* endereco; char *email; char *abertura; };
 
+struct relatorio { char *cnpj; unsigned int totalInsumosSemestre; unsigned int totalGastosMensais; };
+int empresaExiste(char *cnpj);
+
 void telaInicial(), telaCadastroFuncionario(), telaLoginFuncionario(), telaSistema();
 int conectarFuncionario(char *nome, char *senha), salvarFuncionario(struct usuario u), salvarEmpresa(struct empresa e);
 struct usuario fabricarUsuario(char *nome, char *senha);
 struct empresa fabricarEmpresa(char *responsavel, char *cpf, char *nomeEmpresa, char *cnpj, char *razaoSocial, char *nomeFantasia, char *endereco, char *email, char *abertura);
 
+int salvarRelatorio(struct relatorio r) {
+	char nomeArquivo[64];
+
+	sprintf(nomeArquivo, "relatorio-%s.txt", r.cnpj);
+	FILE *f = fopen(nomeArquivo, "w");
+
+	char linha[128];
+
+	sprintf(linha, "%s;%i;%i\n", r.cnpj, r.totalInsumosSemestre, r.totalGastosMensais);
+	fprintf(f, "%s", linha);
+
+	fclose(f);
+
+	return 1;
+}
+
+struct relatorio fabricarRelatorio(char *cnpj, unsigned int totalInsumosSemestre, unsigned int totalGastosMensais) {
+	struct relatorio r;
+
+	r.cnpj = cnpj;
+	r.totalInsumosSemestre = totalInsumosSemestre;
+	r.totalGastosMensais = totalGastosMensais;
+
+	return r;
+}
 
 int main(void) {
 	setlocale(LC_ALL, "Portuguese_Brazil");
 	telaInicial();
 	return 0;
 }
+
 
 void escreverFrasePadrao(char *frase) {
 	printf("%s\n\n", frase);
@@ -221,13 +250,80 @@ void telaRegistroEmpresa() {
 	scanf("%31s", abertura);
 
 	struct empresa e = fabricarEmpresa(responsavel, cpf, nomeEmpresa, cnpj, razaoSocial, nomeFantasia, endereco, email, abertura);
+	struct relatorio r = fabricarRelatorio(e.cnpj, 0, 0);
 
 	salvarEmpresa(e);
+	salvarRelatorio(r);
 	telaRegistroEmpresaSucesso();
 }
 
+int empresaExiste(char *cnpj) {
+	char nomeArquivo[64];
+	char linha[128];
+
+	sprintf(nomeArquivo, "relatorio-%s.txt", cnpj);
+
+	FILE *f = fopen(nomeArquivo, "r");
+	// File does exists, guard clause
+	if (f == 0) { return 0; }
+
+	fscanf(f, "%s\n", linha);
+	char *byte = strtok(linha, ";");
+
+	if (strcmp(cnpj, byte) == 0) { fclose(f); return 1; }
+
+	fclose(f);
+
+	return 0;
+}
+
+void telaEmpresaNaoExiste() {
+	char *roteiro[] = {"Oops... Parce que o CNPJ da empresa que você inseriu não existe", "Por favor, adicione uma nova empresa ao sistema e tente novamente", "Você sera redirecionado ao menu do sistema em alguns segundos"};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	escreverRoteiro(roteiro, tamanhoRoteiro);
+
+	sleep(4);
+	telaSistema();
+}
+
+void telaRelatorioEditadoComSucesso() {
+	char *roteiro[] = {"O relátorio foi alterado e exportado com sucesso", "Os relátorios seguem o formato relatório-{CNPJ}.txt", "As informações estão dispostas de um modo que o arquivo seja portável", "Você sera redirecionado ao menu do sistema em alguns segundos"};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	escreverRoteiro(roteiro, tamanhoRoteiro);
+
+	sleep(4);
+	telaSistema();
+}
+
+void telaEditarRelatorio() {
+	char *roteiro[] = {"Você está no menu de gerenciamento de relatórios.", "Olá funcionário, siga as instruções do sistema", "Você precisa digitar o CNPJ da empresa desejada", "Ao editar um relatório, ele automaticamente é exportado"};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	escreverRoteiro(roteiro, tamanhoRoteiro);
+
+	char cnpj[24];
+
+	escreverFrasePadrao("Digite o CNPJ da empresa desejada (somente números):");
+	scanf("%23s", cnpj);
+
+	if (!empresaExiste(cnpj)) { telaEmpresaNaoExiste(); }
+
+	unsigned int insumosSemestre, gastosMensais;
+	
+	escreverFrasePadrao("Digite a quantidade de insumos produzidos no semestre (cada unidade representa uma tonelada):");
+	scanf("%i", &insumosSemestre);
+
+	escreverFrasePadrao("Digite a quantidade de gastos mensais (apenas números):");
+	scanf("%i", &gastosMensais);
+
+	struct relatorio r = fabricarRelatorio(cnpj, insumosSemestre, gastosMensais);
+
+	salvarRelatorio(r);
+
+	telaRelatorioEditadoComSucesso();
+}
+
 void telaSistema() {
-	char *roteiro[] = {"Você está autenticado e no menu principal do sistema.", "Olá, seja bem-vindo", "Nesse menu você consegue acessar todas as funcionalidades de gerenciamento do sistema", "Digite o número da funcionalidade que deseja acessar", "(1) Registrar uma nova empresa no sistema", "(2) Imprimir o relatório de alguma empresa na tela", "(3) Para salvar os relátorios"};
+	char *roteiro[] = {"Você está autenticado e no menu principal do sistema.", "Olá, seja bem-vindo", "Nesse menu você consegue acessar todas as funcionalidades de gerenciamento do sistema", "Digite o número da funcionalidade que deseja acessar", "(1) Registrar uma nova empresa no sistema", "(2) Editar e exportar o relatório de alguma empresa", "(3) Exibir relátorio de empresa em tela"};
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
 	escreverRoteiro(roteiro, tamanhoRoteiro);
 
@@ -236,6 +332,7 @@ void telaSistema() {
 
 	switch (escolha) {
 		case 1: telaRegistroEmpresa(); break;
+		case 2: telaEditarRelatorio(); break;
 		default: puts("Essa funcionalidade não existe...");
 	}
 }
