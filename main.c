@@ -14,10 +14,13 @@
 #endif
 
 struct usuario { char *nome; char *senha; };
+struct empresa { char *responsavel; char *cpf; char *nomeEmpresa; char *cnpj; char *razaoSocial; 
+								 char *nomeFantasia; char* endereco; char *email; char *abertura; };
 
-void telaInicial(), telaCadastroFuncionario(), telaLoginFuncionario();
-int conectarFuncionario(char *nome, char *senha), salvarFuncionario(struct usuario u);
+void telaInicial(), telaCadastroFuncionario(), telaLoginFuncionario(), telaSistema();
+int conectarFuncionario(char *nome, char *senha), salvarFuncionario(struct usuario u), salvarEmpresa(struct empresa e);
 struct usuario fabricarUsuario(char *nome, char *senha);
+struct empresa fabricarEmpresa(char *responsavel, char *cpf, char *nomeEmpresa, char *cnpj, char *razaoSocial, char *nomeFantasia, char *endereco, char *email, char *abertura);
 
 
 int main(void) {
@@ -28,6 +31,37 @@ int main(void) {
 
 void escreverFrasePadrao(char *frase) {
 	printf("%s\n\n", frase);
+}
+
+int salvarEmpresa(struct empresa e) {
+	FILE *f = fopen("empresas-cadastradas", "a");
+
+	char *linha = malloc(256);
+
+	sprintf(linha, "%s;%s;%s;%s;%s;%s;%s;%s;%s\n", e.cnpj, e.cpf, e.responsavel, e.nomeEmpresa, e.abertura, e.email, e.endereco, e.nomeFantasia, e.razaoSocial);
+
+	fprintf(f, "%s", linha);
+
+	fclose(f);
+	free(linha);
+
+	return 1;
+}
+
+struct empresa fabricarEmpresa(char *responsavel, char *cpf, char *nomeEmpresa, char *cnpj, char *razaoSocial, char *nomeFantasia, char *endereco, char *email, char *abertura) {
+	struct empresa e;
+
+	e.responsavel = responsavel;
+	e.cpf = cpf;
+	e.nomeEmpresa = nomeEmpresa;
+	e.cnpj = cnpj;
+	e.razaoSocial = razaoSocial;
+	e.nomeFantasia = nomeFantasia;
+	e.endereco = endereco;
+	e.email = email;
+	e.abertura = abertura;
+
+	return e;
 }
 
 int funcionarioExiste(char *nome, char *linha) {
@@ -134,10 +168,76 @@ void telaInicial()
 	}
 }
 
-void telaSistema() {
-	char *roteiro [] = {"Você está autenticado e no menu principal do sistema.", "Olá, seja bem-vindo", "Nesse menu você consegue acessar todas as funcionalidades de gerenciamento do sistema", "Digite o número da funcionalidade que deseja acessar", "(1) para registrar uma nova empresa no sistema.", "(2) para imprimir o relatório de alguma empresa na tela", "(3) para salvar os relátorios"};
+void telaRegistroEmpresaSucesso() {
+	char *roteiro[] = {"Você registrou uma nova empresa com sucesso.", "Agora você pode gerenciar os residuos dessa empresa.", "Você sera redirecionado em alguns segundos para o menu"};
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
 	escreverRoteiro(roteiro, tamanhoRoteiro);
+
+	sleep(4);
+	telaSistema();
+}
+
+void telaRegistroEmpresa() {
+	char *roteiro[] = {"Você está registrando uma nova empresa no sistema.", "Insira os dados de forma sequencial", "Siga todas as instruções do sistema."};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	escreverRoteiro(roteiro, tamanhoRoteiro);
+
+	char responsavel[32], cpf[16], nomeEmpresa[64], cnpj[20], razaoSocial[64], nomeFantasia[64], endereco[256], email[64], abertura[32];
+	
+	escreverFrasePadrao("Responsavel (Nome e Sobrenome): ");
+	getchar();
+	scanf("%31[0-9a-zA-Z ]", responsavel);
+
+	escreverFrasePadrao("CPF do Responsável (apenas numeros): ");
+	getchar();
+	scanf("%15[0-9a-zA-Z ]", cpf);
+
+	escreverFrasePadrao("Nome da Empresa:");
+	getchar();
+	scanf("%63[0-9a-zA-Z ]", nomeEmpresa);
+
+	escreverFrasePadrao("CNPJ da Empresa (apenas numeros):");
+	getchar();
+	scanf("%19[0-9a-zA-Z ]", cnpj);
+
+	escreverFrasePadrao("Razão Social:");
+	getchar();
+	scanf("%63[0-9a-zA-Z ]", razaoSocial);
+
+	escreverFrasePadrao("Nome de Fantasia:");
+	getchar();
+	scanf("%63[0-9a-zA-Z ]", nomeFantasia);
+
+	escreverFrasePadrao("Endereço da Empresa (Estado, Cidade, Bairro, Rua e numero):");
+	getchar();
+	scanf("%[0-9a-zA-Z-, ][^,] ", endereco);
+
+	escreverFrasePadrao("Email da Empresa (exemplo@gmail.com):");
+	getchar();
+	scanf("%63s", email);
+
+	escreverFrasePadrao("Data de abertura (xx/xx/xxxx):");
+	getchar();
+	scanf("%31s", abertura);
+
+	struct empresa e = fabricarEmpresa(responsavel, cpf, nomeEmpresa, cnpj, razaoSocial, nomeFantasia, endereco, email, abertura);
+
+	salvarEmpresa(e);
+	telaRegistroEmpresaSucesso();
+}
+
+void telaSistema() {
+	char *roteiro[] = {"Você está autenticado e no menu principal do sistema.", "Olá, seja bem-vindo", "Nesse menu você consegue acessar todas as funcionalidades de gerenciamento do sistema", "Digite o número da funcionalidade que deseja acessar", "(1) Registrar uma nova empresa no sistema", "(2) Imprimir o relatório de alguma empresa na tela", "(3) Para salvar os relátorios"};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	escreverRoteiro(roteiro, tamanhoRoteiro);
+
+	uint8_t escolha;
+	scanf("%hhu", &escolha);
+
+	switch (escolha) {
+		case 1: telaRegistroEmpresa(); break;
+		default: puts("Essa funcionalidade não existe...");
+	}
 }
 
 void telaRegistroSucesso()
