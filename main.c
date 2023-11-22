@@ -25,8 +25,6 @@ int conectarFuncionario(char *nome, char *senha), salvarFuncionario(struct usuar
 struct usuario fabricarUsuario(char *nome, char *senha);
 struct empresa fabricarEmpresa(char *responsavel, char *cpf, char *nomeEmpresa, char *cnpj, char *razaoSocial, char *nomeFantasia, char *endereco, char *email, char *abertura);
 
-
-
 int salvarRelatorio(struct relatorio r) {
 	char nomeArquivo[64];
 
@@ -55,6 +53,7 @@ struct relatorio fabricarRelatorio(char *cnpj, unsigned int totalInsumosSemestre
 
 int main(void) {
 	setlocale(LC_ALL, "Portuguese_Brazil");
+	telaInicial();
 	return 0;
 }
 
@@ -278,6 +277,24 @@ int empresaExiste(char *cnpj) {
 	return 0;
 }
 
+void telaEmpresaNaoExiste() {
+	char *roteiro[] = {"Oops... Parce que o CNPJ da empresa que você inseriu não existe", "Por favor, adicione uma nova empresa ao sistema e tente novamente", "Você sera redirecionado ao menu do sistema em alguns segundos"};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	escreverRoteiro(roteiro, tamanhoRoteiro);
+
+	sleep(4);
+	telaSistema();
+}
+
+void telaRelatorioEditadoComSucesso() {
+	char *roteiro[] = {"O relátorio foi alterado e exportado com sucesso", "Os relátorios seguem o formato relatório-{CNPJ}.txt", "As informações estão dispostas de um modo que o arquivo seja portável", "Você sera redirecionado ao menu do sistema em alguns segundos"};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	escreverRoteiro(roteiro, tamanhoRoteiro);
+
+	sleep(4);
+	telaSistema();
+}
+
 void telaEditarRelatorio() {
 	char *roteiro[] = {"Você está no menu de gerenciamento de relatórios.", "Olá funcionário, siga as instruções do sistema", "Você precisa digitar o CNPJ da empresa desejada", "Ao editar um relatório, ele automaticamente é exportado"};
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
@@ -288,7 +305,21 @@ void telaEditarRelatorio() {
 	escreverFrasePadrao("Digite o CNPJ da empresa desejada (somente números):");
 	scanf("%23s", cnpj);
 
-	if (empresaExiste(cnpj)) { return; }
+	if (!empresaExiste(cnpj)) { telaEmpresaNaoExiste(); }
+
+	unsigned int insumosSemestre, gastosMensais;
+	
+	escreverFrasePadrao("Digite a quantidade de insumos produzidos no semestre (cada unidade representa uma tonelada):");
+	scanf("%i", &insumosSemestre);
+
+	escreverFrasePadrao("Digite a quantidade de gastos mensais (apenas números):");
+	scanf("%i", &gastosMensais);
+
+	struct relatorio r = fabricarRelatorio(cnpj, insumosSemestre, gastosMensais);
+
+	salvarRelatorio(r);
+
+	telaRelatorioEditadoComSucesso();
 }
 
 void telaSistema() {
