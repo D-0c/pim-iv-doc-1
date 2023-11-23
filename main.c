@@ -247,7 +247,8 @@ void telaRegistroEmpresa() {
 
 	escreverFrasePadrao("Endereço da Empresa (Estado, Cidade, Bairro, Rua e numero):");
 	getchar();
-	scanf("%[0-9a-zA-Z-, ][^,] ", endereco);
+	//scanf("%[0-9a-zA-Z-, ][^,] ", endereco);
+	fgets(endereco, sizeof(endereco), stdin);
 
 	escreverFrasePadrao("Email da Empresa (exemplo@gmail.com):");
 	getchar();
