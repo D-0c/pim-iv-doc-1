@@ -477,6 +477,7 @@ void telaSistema() {
 	uint8_t escolha;
 	escreverRoteiro(roteiro, tamanhoRoteiro);
 
+	getchar();
 	scanf("%hhu", &escolha);
 
 	switch (escolha) {
