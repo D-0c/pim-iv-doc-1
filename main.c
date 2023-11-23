@@ -6,12 +6,13 @@
 #include <string.h>
 #include <time.h>
 #include <inttypes.h>
-#ifdef __unix__
+#if defined __unix__
 # include <unistd.h>
+# define CLEAR_SCREEN() system("clear")
 #elif defined _WIN32
 # include <windows.h>
-#define sleep(x) Sleep(1000 * (x))
-#define system("clear") system("cls")
+# define sleep(x) Sleep(1000 * (x))
+# define CLEAR_SCREEN() system("cls")
 #endif
 
 struct usuario { char *nome; char *senha; };
@@ -156,11 +157,12 @@ struct usuario fabricarUsuario(char *nome, char *senha)
 
 void escreverRoteiro(char *roteiro[], unsigned int tamanho)
 {
-	system("clear");
+	int i;
+	CLEAR_SCREEN();
 
 	escreverFrasePadrao("(Eco Client, versão: 1.0)");
 
-	for (int i = 0; i < tamanho; i++) {
+	for (i = 0; i < tamanho; i++) {
 		if (i == 0) {
 			printf("[!] %s\n\n", roteiro[i]);
 			continue;
@@ -262,8 +264,10 @@ int empresaExiste(char *cnpj) {
 	char linha[128];
 	FILE *f;
 	char *byte;
+	char *sigla = "relatorio";
+	char *extensao = "txt";
 
-	sprintf(nomeArquivo, "relatorio-%s.txt", cnpj);
+	sprintf(nomeArquivo, "%s-%s.%s", sigla, cnpj, extensao);
 
 	f = fopen(nomeArquivo, "r");
 
@@ -310,10 +314,12 @@ struct relatorio carregarRelatorio(char *cnpj) {
 	char **linhas;
 	char *insumosSemestre;
 	char *gastosMensal;
+	char *sigla = "relatorio";
+	char *extensao = "txt";
 
 	if (!empresaExiste(cnpj)) { telaEmpresaNaoExiste(); };
 
-	sprintf(caminho, "relatorio-%s.txt", cnpj);
+	sprintf(caminho, "%s-%s.%s", sigla, cnpj, extensao);
 	f = fopen(caminho, "r");
 
 	fscanf(f, "%s\n", linha);
