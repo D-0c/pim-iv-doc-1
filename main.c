@@ -447,11 +447,11 @@ void telaRegistroSucesso()
 }
 
 void telaCadastroFuncionario(){
+	char nome[48], senha[64];
+	struct usuario u;
 	char *roteiro[] = {"Olá, você precisa realizar o cadastro de um novo usuário, para posteriormente realizar o login no sistema.", "O sistema precisa que você escolha um nome de usuário e uma senha"};
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
 	escreverRoteiro(roteiro, tamanhoRoteiro);
-	struct usuario u;
-	char nome[48], senha[64];
 
 	escreverFrasePadrao("Digite algum nome de usuário.");
 	scanf("%s", nome);
@@ -484,11 +484,10 @@ void telaLoginIncorreto() {
 }
 
 void telaLoginFuncionario() {
+	char nome[48], senha[64];
 	char *roteiro[] = {"Você deve realizar o seu login para acessar o sistema.", "Seja bem vindo novamente funcionário", "Siga as instruções do sistema para realizar o login", "Digite todos os dados como o sistema pede, de forma sequencial"};
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
 	escreverRoteiro(roteiro, tamanhoRoteiro);
-
-	char nome[48], senha[64];
 
 	escreverFrasePadrao("Digite o seu nome de usuário");
 	scanf("%s", nome);
