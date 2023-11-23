@@ -19,8 +19,10 @@ struct empresa { char *responsavel; char *cpf; char *nomeEmpresa; char *cnpj; ch
 
 struct relatorio { char *cnpj; unsigned int totalInsumosSemestre; unsigned int totalGastosMensais; };
 int empresaExiste(char *cnpj);
+struct relatorio carregarRelatorio(char *cnpj);
 
 void telaInicial(), telaCadastroFuncionario(), telaLoginFuncionario(), telaSistema();
+struct empresa carregarEmpresa(char *cnpj);
 int conectarFuncionario(char *nome, char *senha), salvarFuncionario(struct usuario u), salvarEmpresa(struct empresa e);
 struct usuario fabricarUsuario(char *nome, char *senha);
 struct empresa fabricarEmpresa(char *responsavel, char *cpf, char *nomeEmpresa, char *cnpj, char *razaoSocial, char *nomeFantasia, char *endereco, char *email, char *abertura);
@@ -53,7 +55,7 @@ struct relatorio fabricarRelatorio(char *cnpj, unsigned int totalInsumosSemestre
 
 int main(void) {
 	setlocale(LC_ALL, "Portuguese_Brazil");
-	telaInicial();
+	carregarEmpresa("91827162917274");
 	return 0;
 }
 
@@ -63,7 +65,7 @@ void escreverFrasePadrao(char *frase) {
 }
 
 int salvarEmpresa(struct empresa e) {
-	FILE *f = fopen("empresas-cadastradas", "a");
+	FILE *f = fopen("empresas-cadastradas.txt", "a");
 
 	char *linha = malloc(256);
 
@@ -264,7 +266,7 @@ int empresaExiste(char *cnpj) {
 	sprintf(nomeArquivo, "relatorio-%s.txt", cnpj);
 
 	FILE *f = fopen(nomeArquivo, "r");
-	// File does exists, guard clause
+
 	if (f == 0) { return 0; }
 
 	fscanf(f, "%s\n", linha);
@@ -277,6 +279,7 @@ int empresaExiste(char *cnpj) {
 	return 0;
 }
 
+
 void telaEmpresaNaoExiste() {
 	char *roteiro[] = {"Oops... Parce que o CNPJ da empresa que você inseriu não existe", "Por favor, adicione uma nova empresa ao sistema e tente novamente", "Você sera redirecionado ao menu do sistema em alguns segundos"};
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
@@ -284,6 +287,85 @@ void telaEmpresaNaoExiste() {
 
 	sleep(4);
 	telaSistema();
+}
+
+char** cortarLinha(char *linha, unsigned int tamanho) {
+	char **linhas = malloc(sizeof(char*) * tamanho);
+
+	int index = 0;
+	char *token = strtok(linha, ";");
+
+	while (token != NULL) {
+		linhas[index++] = token;
+		token = strtok(NULL, ";");
+	}
+
+	return linhas;
+}
+
+struct relatorio carregarRelatorio(char *cnpj) {
+	struct relatorio r;
+
+	char caminho[64];
+	char linha[128];
+
+	if (!empresaExiste(cnpj)) { telaEmpresaNaoExiste(); };
+
+	sprintf(caminho, "relatorio-%s.txt", cnpj);
+	FILE *f = fopen(caminho, "r");
+
+	fscanf(f, "%s\n", linha);
+
+	char **linhas = cortarLinha(linha, 3);
+
+	char *insumosSemestre = linhas[1];
+	char *gastosMensal = linhas[2];
+
+	r.cnpj = cnpj;
+	r.totalInsumosSemestre = atoi(insumosSemestre);
+	r.totalGastosMensais = atoi(gastosMensal);
+
+	free(linhas);
+
+	return r;
+}
+
+char* capturarLinha(FILE *f, char *cnpj) {
+	char linha[256];
+	while (fgets(linha, sizeof(linha), f)) {
+		char *copia = malloc(sizeof(linha));
+		strcpy(copia, linha);
+
+		char **tokens = cortarLinha(linha, 9);
+		if (strcmp(tokens[0], cnpj) == 0) { return copia; } else { free(copia); }
+	}
+	return "";
+}
+
+struct empresa carregarEmpresa(char *cnpj) {
+	struct empresa e;
+
+	char *caminho = "empresas-cadastradas.txt";
+
+	if (!empresaExiste(cnpj)) { telaEmpresaNaoExiste(); }
+
+	FILE *f = fopen(caminho, "r");
+
+	char *linha = capturarLinha(f, cnpj);
+
+	char **tokens = cortarLinha(linha, 9);
+
+	e.cnpj = tokens[0];
+	e.cpf = tokens[1];
+	e.responsavel = tokens[2];
+	e.nomeEmpresa = tokens[3];
+	e.abertura = tokens[4];
+	e.email = tokens[5];
+	e.endereco = tokens[6];
+	e.nomeFantasia = tokens[7];
+	e.razaoSocial = tokens[8];
+
+	return e;
 }
 
 void telaRelatorioEditadoComSucesso() {
