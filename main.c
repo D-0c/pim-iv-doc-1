@@ -213,7 +213,7 @@ void telaRegistroEmpresaSucesso() {
 }
 
 void telaRegistroEmpresa() {
-	char responsavel[32], cpf[16], nomeEmpresa[64], cnpj[20], razaoSocial[64], nomeFantasia[64], endereco[256], email[64], abertura[32];
+	char responsavel[64], cpf[32], nomeEmpresa[64], cnpj[32], razaoSocial[64], nomeFantasia[64], endereco[256], email[64], abertura[64];
 	struct empresa e;
 	struct relatorio r;
 	char *roteiro[] = {"Você está registrando uma nova empresa no sistema.", "Insira os dados de forma sequencial", "Siga todas as instruções do sistema."};
