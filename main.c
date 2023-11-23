@@ -223,11 +223,11 @@ void telaRegistroEmpresa() {
 	
 	escreverFrasePadrao("Responsavel (Nome e Sobrenome): ");
 	getchar();
-	scanf("%31[0-9a-zA-Z ]", responsavel);
+	scanf("%63[0-9a-zA-Z ]", responsavel);
 
 	escreverFrasePadrao("CPF do Responsável (apenas numeros): ");
 	getchar();
-	scanf("%15[0-9a-zA-Z ]", cpf);
+	scanf("%31[0-9a-zA-Z ]", cpf);
 
 	escreverFrasePadrao("Nome da Empresa:");
 	getchar();
@@ -235,7 +235,7 @@ void telaRegistroEmpresa() {
 
 	escreverFrasePadrao("CNPJ da Empresa (apenas numeros):");
 	getchar();
-	scanf("%19[0-9a-zA-Z ]", cnpj);
+	scanf("%31[0-9a-zA-Z ]", cnpj);
 
 	escreverFrasePadrao("Razão Social:");
 	getchar();
@@ -255,7 +255,7 @@ void telaRegistroEmpresa() {
 
 	escreverFrasePadrao("Data de abertura (xx/xx/xxxx):");
 	getchar();
-	scanf("%31s", abertura);
+	scanf("%63s", abertura);
 
 	e = fabricarEmpresa(responsavel, cpf, nomeEmpresa, cnpj, razaoSocial, nomeFantasia, endereco, email, abertura);
 	r = fabricarRelatorio(e.cnpj, 0, 0);
