@@ -32,9 +32,12 @@ struct empresa fabricarEmpresa(char *responsavel, char *cpf, char *nomeEmpresa, 
 int salvarRelatorio(struct relatorio r) {
 	char nomeArquivo[64];
 	char linha[128];
+	char *sigla = "relatorio";
+	char *extensao = "txt";
+	FILE *f;
 
-	sprintf(nomeArquivo, "relatorio-%s.txt", r.cnpj);
-	FILE *f = fopen(nomeArquivo, "w");
+	sprintf(nomeArquivo, "%s-%s.%s", sigla, r.cnpj, extensao);
+	f = fopen(nomeArquivo, "w");
 
 	sprintf(linha, "%s;%i;%i\n", r.cnpj, r.totalInsumosSemestre, r.totalGastosMensais);
 	fprintf(f, "%s", linha);
@@ -65,10 +68,10 @@ void escreverFrasePadrao(char *frase) {
 }
 
 int salvarEmpresa(struct empresa e) {
-	FILE *f = fopen("empresas-cadastradas.txt", "a");
-
 	char *linha = malloc(256);
+	FILE *f;
 
+	f = fopen("empresas-cadastradas.txt", "a");
 	sprintf(linha, "%s;%s;%s;%s;%s;%s;%s;%s;%s\n", e.cnpj, e.cpf, e.responsavel, e.nomeEmpresa, e.abertura, e.email, e.endereco, e.nomeFantasia, e.razaoSocial);
 
 	fprintf(f, "%s", linha);
@@ -114,12 +117,13 @@ int verificarSenhaFuncionario(char *nome, char *senha, char *linha) {
 }
 
 int conectarFuncionario(char *nome, char *senha) {
+	FILE *f;
 	char linha[128];
 
-	FILE *arquivo = fopen("funcionarios.txt", "r");
-	if (arquivo == 0) { return 0; }
+	f = fopen("funcionarios.txt", "r");
+	if (f == 0) { return 0; }
 
-	while (fscanf(arquivo, "%s\n", linha) > 0) {
+	while (fscanf(f, "%s\n", linha) > 0) {
 		char copia[128];
 		strcpy(copia, linha);
 
@@ -127,7 +131,7 @@ int conectarFuncionario(char *nome, char *senha) {
 
 		if (verificarSenhaFuncionario(nome, senha, linha)) { return 1; }
 	}
-	fclose(arquivo);
+	fclose(f);
 
 	return 0;
 }
@@ -208,12 +212,13 @@ void telaRegistroEmpresaSucesso() {
 }
 
 void telaRegistroEmpresa() {
-	char *roteiro[] = {"Você está registrando uma nova empresa no sistema.", "Insira os dados de forma sequencial", "Siga todas as instruções do sistema."};
-	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
-	escreverRoteiro(roteiro, tamanhoRoteiro);
 	char responsavel[32], cpf[16], nomeEmpresa[64], cnpj[20], razaoSocial[64], nomeFantasia[64], endereco[256], email[64], abertura[32];
 	struct empresa e;
 	struct relatorio r;
+	char *roteiro[] = {"Você está registrando uma nova empresa no sistema.", "Insira os dados de forma sequencial", "Siga todas as instruções do sistema."};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+
+	escreverRoteiro(roteiro, tamanhoRoteiro);
 	
 	escreverFrasePadrao("Responsavel (Nome e Sobrenome): ");
 	getchar();
