@@ -32,8 +32,10 @@ struct empresa fabricarEmpresa(char *responsavel, char *cpf, char *nomeEmpresa, 
 int salvarRelatorio(struct relatorio r) {
 	char nomeArquivo[64];
 	char linha[128];
+	char *sigla = "relatorio";
+	char *extensao = "txt";
 
-	sprintf(nomeArquivo, "relatorio-%s.txt", r.cnpj);
+	sprintf(nomeArquivo, "%s-%s.%s", sigla, r.cnpj, extensao);
 	FILE *f = fopen(nomeArquivo, "w");
 
 	sprintf(linha, "%s;%i;%i\n", r.cnpj, r.totalInsumosSemestre, r.totalGastosMensais);
@@ -208,12 +210,13 @@ void telaRegistroEmpresaSucesso() {
 }
 
 void telaRegistroEmpresa() {
-	char *roteiro[] = {"Você está registrando uma nova empresa no sistema.", "Insira os dados de forma sequencial", "Siga todas as instruções do sistema."};
-	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
-	escreverRoteiro(roteiro, tamanhoRoteiro);
 	char responsavel[32], cpf[16], nomeEmpresa[64], cnpj[20], razaoSocial[64], nomeFantasia[64], endereco[256], email[64], abertura[32];
 	struct empresa e;
 	struct relatorio r;
+	char *roteiro[] = {"Você está registrando uma nova empresa no sistema.", "Insira os dados de forma sequencial", "Siga todas as instruções do sistema."};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+
+	escreverRoteiro(roteiro, tamanhoRoteiro);
 	
 	escreverFrasePadrao("Responsavel (Nome e Sobrenome): ");
 	getchar();
