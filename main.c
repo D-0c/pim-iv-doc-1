@@ -22,6 +22,7 @@ struct empresa { char *responsavel; char *cpf; char *nomeEmpresa; char *cnpj; ch
 struct relatorio { char *cnpj; unsigned int totalInsumosSemestre; unsigned int totalGastosMensais; };
 int empresaExiste(char *cnpj);
 struct relatorio carregarRelatorio(char *cnpj);
+void telaPerguntarCNPJRelatorio();
 
 void telaInicial(), telaCadastroFuncionario(), telaLoginFuncionario(), telaSistema();
 struct empresa carregarEmpresa(char *cnpj);
@@ -197,7 +198,7 @@ void telaInicial()
 			exit(0);
 			break;
 		default:
-			printf("Resposta inválida, tente novamente!");
+			telaInicial();
 			break;
 	}
 }
@@ -384,6 +385,57 @@ struct empresa carregarEmpresa(char *cnpj) {
 	return e;
 }
 
+void telaRelatorio(struct empresa e, struct relatorio r) {
+	char *roteiro[] = {"Você está visualizando o relatório da empresa escolhida.", "Os dados estão dispostos de maneira a facilitar a leitura", "Tome o tempo que precisar lendo os dados do relatório"};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	char insumos[64];
+	char gastos[64];
+	char nomeEmpresa[64];
+	char responsavel[64];
+	char endereco[128];
+	const char* insumosPrefix = "Insumos produzidos no Semestre (toneladas)";
+	const char* gastoMensalPrefix = "Gasto mensal da Empresa (real)";
+	const char* responsavelPrefix = "Nome do reponsável pela Empresa";
+	const char* nomeEmpresaPrefix = "Nome da empresa";
+	const char* enderecoPrefix = "Endereço da empresa";
+	escreverRoteiro(roteiro, tamanhoRoteiro);
+
+	sprintf(insumos, "%s: %i", insumosPrefix, r.totalInsumosSemestre);
+	sprintf(gastos, "%s: %i", gastoMensalPrefix, r.totalGastosMensais);
+	sprintf(responsavel, "%s: %s", responsavelPrefix, e.responsavel);
+	sprintf(nomeEmpresa, "%s: %s", nomeEmpresaPrefix, e.nomeEmpresa);
+	sprintf(endereco, "%s: %s", enderecoPrefix, e.endereco);
+
+	escreverFrasePadrao(nomeEmpresa);
+	escreverFrasePadrao(responsavel);
+	escreverFrasePadrao(endereco);
+	escreverFrasePadrao(insumos);
+	escreverFrasePadrao(gastos);
+
+	escreverFrasePadrao("Presisone a tecla (ENTER), para continuar...");
+	getchar();
+	getchar();
+}
+
+void telaPerguntarCNPJRelatorio() {
+	char *roteiro[] = {"Você está inserindo um CNPJ para visualizar o relatorio da empresa em tela", "Por favor, siga as instruções do sistema", "Insira os dados de forma sequencial como pede o sistema"};
+	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	char cnpj[32];
+	struct empresa e;
+	struct relatorio r;
+	escreverRoteiro(roteiro, tamanhoRoteiro);
+
+	escreverFrasePadrao("Digite o CNPJ da empresa qual deseja visualizar o relatorio (apenas números):");
+	scanf("%s", cnpj);
+
+	if (!empresaExiste(cnpj)) { telaEmpresaNaoExiste(); }
+
+	e = carregarEmpresa(cnpj);
+	r = carregarRelatorio(cnpj);
+
+	telaRelatorio(e, r);
+}
+
 void telaRelatorioEditadoComSucesso() {
 	char *roteiro[] = {"O relátorio foi alterado e exportado com sucesso", "Os relátorios seguem o formato relatório-{CNPJ}.txt", "As informações estão dispostas de um modo que o arquivo seja portável", "Você sera redirecionado ao menu do sistema em alguns segundos"};
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
@@ -420,7 +472,7 @@ void telaEditarRelatorio() {
 }
 
 void telaSistema() {
-	char *roteiro[] = {"Você está autenticado e no menu principal do sistema.", "Olá, seja bem-vindo", "Nesse menu você consegue acessar todas as funcionalidades de gerenciamento do sistema", "Digite o número da funcionalidade que deseja acessar", "(1) Registrar uma nova empresa no sistema", "(2) Editar e exportar o relatório de alguma empresa", "(3) Exibir relátorio de empresa em tela"};
+	char *roteiro[] = {"Você está autenticado e no menu principal do sistema.", "Olá, seja bem-vindo", "Nesse menu você consegue acessar todas as funcionalidades de gerenciamento do sistema", "Digite o número da funcionalidade que deseja acessar", "(1) Registrar uma nova empresa no sistema", "(2) Editar e exportar o relatório de alguma empresa", "(3) Exibir relátorio de empresa em tela", "(4) Para sair do sistema"};
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
 	uint8_t escolha;
 	escreverRoteiro(roteiro, tamanhoRoteiro);
@@ -430,7 +482,9 @@ void telaSistema() {
 	switch (escolha) {
 		case 1: telaRegistroEmpresa(); break;
 		case 2: telaEditarRelatorio(); break;
-		default: puts("Essa funcionalidade não existe...");
+		case 3: telaPerguntarCNPJRelatorio(); break;
+		case 4: exit(0); break;
+		default: telaSistema();
 	}
 }
 
@@ -453,10 +507,10 @@ void telaCadastroFuncionario(){
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
 	escreverRoteiro(roteiro, tamanhoRoteiro);
 
-	escreverFrasePadrao("Digite algum nome de usuário.");
+	escreverFrasePadrao("Digite algum nome de usuário (apenas letras, não utilize espaços em brancos ou outros caracteres)");
 	scanf("%s", nome);
 
-	escreverFrasePadrao("Crie uma senha para acessar o sistema.");
+	escreverFrasePadrao("Crie uma senha para acessar o sistema (apenas letras e numeros):");
 	scanf("%s", senha);
 
 	u = fabricarUsuario(nome, senha);
