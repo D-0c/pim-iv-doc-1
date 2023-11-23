@@ -11,6 +11,7 @@
 #elif defined _WIN32
 # include <windows.h>
 #define sleep(x) Sleep(1000 * (x))
+#define system("clear") system("cls")
 #endif
 
 struct usuario { char *nome; char *senha; };
@@ -19,25 +20,25 @@ struct empresa { char *responsavel; char *cpf; char *nomeEmpresa; char *cnpj; ch
 
 struct relatorio { char *cnpj; unsigned int totalInsumosSemestre; unsigned int totalGastosMensais; };
 int empresaExiste(char *cnpj);
+struct relatorio carregarRelatorio(char *cnpj);
 
 void telaInicial(), telaCadastroFuncionario(), telaLoginFuncionario(), telaSistema();
+struct empresa carregarEmpresa(char *cnpj);
 int conectarFuncionario(char *nome, char *senha), salvarFuncionario(struct usuario u), salvarEmpresa(struct empresa e);
 struct usuario fabricarUsuario(char *nome, char *senha);
 struct empresa fabricarEmpresa(char *responsavel, char *cpf, char *nomeEmpresa, char *cnpj, char *razaoSocial, char *nomeFantasia, char *endereco, char *email, char *abertura);
 
 int salvarRelatorio(struct relatorio r) {
 	char nomeArquivo[64];
+	char linha[128];
 
 	sprintf(nomeArquivo, "relatorio-%s.txt", r.cnpj);
 	FILE *f = fopen(nomeArquivo, "w");
-
-	char linha[128];
 
 	sprintf(linha, "%s;%i;%i\n", r.cnpj, r.totalInsumosSemestre, r.totalGastosMensais);
 	fprintf(f, "%s", linha);
 
 	fclose(f);
-
 	return 1;
 }
 
@@ -63,7 +64,7 @@ void escreverFrasePadrao(char *frase) {
 }
 
 int salvarEmpresa(struct empresa e) {
-	FILE *f = fopen("empresas-cadastradas", "a");
+	FILE *f = fopen("empresas-cadastradas.txt", "a");
 
 	char *linha = malloc(256);
 
@@ -112,11 +113,10 @@ int verificarSenhaFuncionario(char *nome, char *senha, char *linha) {
 }
 
 int conectarFuncionario(char *nome, char *senha) {
-	FILE *arquivo = fopen("funcionarios.txt", "r");
-
-	if (arquivo == 0) { return 0; }
-
 	char linha[128];
+
+	FILE *arquivo = fopen("funcionarios.txt", "r");
+	if (arquivo == 0) { return 0; }
 
 	while (fscanf(arquivo, "%s\n", linha) > 0) {
 		char copia[128];
@@ -173,7 +173,6 @@ void escreverRoteiro(char *roteiro[], unsigned int tamanho)
 void telaInicial()
 {
 	char *roteiro[] = {"Olá funcionário, você já possui um login?", "Digite (1) para sim", "Digite (2) para não", "Digite (3) para fechar o programa"};
-
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
 	uint8_t escolha;
 
@@ -210,8 +209,9 @@ void telaRegistroEmpresa() {
 	char *roteiro[] = {"Você está registrando uma nova empresa no sistema.", "Insira os dados de forma sequencial", "Siga todas as instruções do sistema."};
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
 	escreverRoteiro(roteiro, tamanhoRoteiro);
-
 	char responsavel[32], cpf[16], nomeEmpresa[64], cnpj[20], razaoSocial[64], nomeFantasia[64], endereco[256], email[64], abertura[32];
+	struct empresa e;
+	struct relatorio r;
 	
 	escreverFrasePadrao("Responsavel (Nome e Sobrenome): ");
 	getchar();
@@ -249,8 +249,8 @@ void telaRegistroEmpresa() {
 	getchar();
 	scanf("%31s", abertura);
 
-	struct empresa e = fabricarEmpresa(responsavel, cpf, nomeEmpresa, cnpj, razaoSocial, nomeFantasia, endereco, email, abertura);
-	struct relatorio r = fabricarRelatorio(e.cnpj, 0, 0);
+	e = fabricarEmpresa(responsavel, cpf, nomeEmpresa, cnpj, razaoSocial, nomeFantasia, endereco, email, abertura);
+	r = fabricarRelatorio(e.cnpj, 0, 0);
 
 	salvarEmpresa(e);
 	salvarRelatorio(r);
@@ -260,15 +260,17 @@ void telaRegistroEmpresa() {
 int empresaExiste(char *cnpj) {
 	char nomeArquivo[64];
 	char linha[128];
+	FILE *f;
+	char *byte;
 
 	sprintf(nomeArquivo, "relatorio-%s.txt", cnpj);
 
-	FILE *f = fopen(nomeArquivo, "r");
-	// File does exists, guard clause
+	f = fopen(nomeArquivo, "r");
+
 	if (f == 0) { return 0; }
 
 	fscanf(f, "%s\n", linha);
-	char *byte = strtok(linha, ";");
+	byte = strtok(linha, ";");
 
 	if (strcmp(cnpj, byte) == 0) { fclose(f); return 1; }
 
@@ -277,6 +279,7 @@ int empresaExiste(char *cnpj) {
 	return 0;
 }
 
+
 void telaEmpresaNaoExiste() {
 	char *roteiro[] = {"Oops... Parce que o CNPJ da empresa que você inseriu não existe", "Por favor, adicione uma nova empresa ao sistema e tente novamente", "Você sera redirecionado ao menu do sistema em alguns segundos"};
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
@@ -284,6 +287,90 @@ void telaEmpresaNaoExiste() {
 
 	sleep(4);
 	telaSistema();
+}
+
+char** cortarLinha(char *linha, unsigned int tamanho) {
+	char **linhas = malloc(sizeof(char*) * tamanho);
+	int index = 0;
+	char *token = strtok(linha, ";");
+
+	while (token != NULL) {
+		linhas[index++] = token;
+		token = strtok(NULL, ";");
+	}
+
+	return linhas;
+}
+
+struct relatorio carregarRelatorio(char *cnpj) {
+	struct relatorio r;
+	char caminho[64];
+	char linha[128];
+	FILE *f;
+	char **linhas;
+	char *insumosSemestre;
+	char *gastosMensal;
+
+	if (!empresaExiste(cnpj)) { telaEmpresaNaoExiste(); };
+
+	sprintf(caminho, "relatorio-%s.txt", cnpj);
+	f = fopen(caminho, "r");
+
+	fscanf(f, "%s\n", linha);
+
+	linhas = cortarLinha(linha, 3);
+
+	insumosSemestre = linhas[1];
+	gastosMensal = linhas[2];
+
+	r.cnpj = cnpj;
+	r.totalInsumosSemestre = atoi(insumosSemestre);
+	r.totalGastosMensais = atoi(gastosMensal);
+
+	free(linhas);
+
+	return r;
+}
+
+char* capturarLinha(FILE *f, char *cnpj) {
+	char linha[256];
+	while (fgets(linha, sizeof(linha), f)) {
+		char *copia = malloc(sizeof(linha));
+		char **tokens;
+		strcpy(copia, linha);
+
+		tokens = cortarLinha(linha, 9);
+		if (strcmp(tokens[0], cnpj) == 0) { return copia; } else { free(copia); }
+	}
+	return "";
+}
+
+struct empresa carregarEmpresa(char *cnpj) {
+	struct empresa e;
+	char *caminho = "empresas-cadastradas.txt";
+	FILE *f;
+	char *linha;
+	char **tokens;
+
+	if (!empresaExiste(cnpj)) { telaEmpresaNaoExiste(); }
+
+	f = fopen(caminho, "r");
+
+	linha = capturarLinha(f, cnpj);
+
+	tokens = cortarLinha(linha, 9);
+
+	e.cnpj = tokens[0];
+	e.cpf = tokens[1];
+	e.responsavel = tokens[2];
+	e.nomeEmpresa = tokens[3];
+	e.abertura = tokens[4];
+	e.email = tokens[5];
+	e.endereco = tokens[6];
+	e.nomeFantasia = tokens[7];
+	e.razaoSocial = tokens[8];
+
+	return e;
 }
 
 void telaRelatorioEditadoComSucesso() {
@@ -298,24 +385,23 @@ void telaRelatorioEditadoComSucesso() {
 void telaEditarRelatorio() {
 	char *roteiro[] = {"Você está no menu de gerenciamento de relatórios.", "Olá funcionário, siga as instruções do sistema", "Você precisa digitar o CNPJ da empresa desejada", "Ao editar um relatório, ele automaticamente é exportado"};
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
-	escreverRoteiro(roteiro, tamanhoRoteiro);
-
 	char cnpj[24];
+	unsigned int insumosSemestre, gastosMensais;
+	struct relatorio r;
+	escreverRoteiro(roteiro, tamanhoRoteiro);
 
 	escreverFrasePadrao("Digite o CNPJ da empresa desejada (somente números):");
 	scanf("%23s", cnpj);
 
 	if (!empresaExiste(cnpj)) { telaEmpresaNaoExiste(); }
 
-	unsigned int insumosSemestre, gastosMensais;
-	
 	escreverFrasePadrao("Digite a quantidade de insumos produzidos no semestre (cada unidade representa uma tonelada):");
 	scanf("%i", &insumosSemestre);
 
 	escreverFrasePadrao("Digite a quantidade de gastos mensais (apenas números):");
 	scanf("%i", &gastosMensais);
 
-	struct relatorio r = fabricarRelatorio(cnpj, insumosSemestre, gastosMensais);
+	r = fabricarRelatorio(cnpj, insumosSemestre, gastosMensais);
 
 	salvarRelatorio(r);
 
@@ -325,9 +411,9 @@ void telaEditarRelatorio() {
 void telaSistema() {
 	char *roteiro[] = {"Você está autenticado e no menu principal do sistema.", "Olá, seja bem-vindo", "Nesse menu você consegue acessar todas as funcionalidades de gerenciamento do sistema", "Digite o número da funcionalidade que deseja acessar", "(1) Registrar uma nova empresa no sistema", "(2) Editar e exportar o relatório de alguma empresa", "(3) Exibir relátorio de empresa em tela"};
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
+	uint8_t escolha;
 	escreverRoteiro(roteiro, tamanhoRoteiro);
 
-	uint8_t escolha;
 	scanf("%hhu", &escolha);
 
 	switch (escolha) {
@@ -353,7 +439,7 @@ void telaCadastroFuncionario(){
 	char *roteiro[] = {"Olá, você precisa realizar o cadastro de um novo usuário, para posteriormente realizar o login no sistema.", "O sistema precisa que você escolha um nome de usuário e uma senha"};
 	size_t tamanhoRoteiro = sizeof(roteiro) / sizeof(roteiro[0]);
 	escreverRoteiro(roteiro, tamanhoRoteiro);
-
+	struct usuario u;
 	char nome[48], senha[64];
 
 	escreverFrasePadrao("Digite algum nome de usuário.");
@@ -362,7 +448,7 @@ void telaCadastroFuncionario(){
 	escreverFrasePadrao("Crie uma senha para acessar o sistema.");
 	scanf("%s", senha);
 
-	struct usuario u = fabricarUsuario(nome, senha);
+	u = fabricarUsuario(nome, senha);
 	salvarFuncionario(u);
 
 	telaRegistroSucesso();
