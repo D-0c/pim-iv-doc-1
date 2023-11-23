@@ -198,7 +198,7 @@ void telaInicial()
 			exit(0);
 			break;
 		default:
-			telaInicial();
+			puts("Opção inválida!");
 			break;
 	}
 }
@@ -223,7 +223,7 @@ void telaRegistroEmpresa() {
 	
 	escreverFrasePadrao("Responsavel (Nome e Sobrenome): ");
 	getchar();
-	scanf("%63[0-9a-zA-Z ]", responsavel);
+  scanf("%63[0-9a-zA-Z ]", responsavel);
 
 	escreverFrasePadrao("CPF do Responsável (apenas numeros): ");
 	getchar();
@@ -484,7 +484,7 @@ void telaSistema() {
 		case 2: telaEditarRelatorio(); break;
 		case 3: telaPerguntarCNPJRelatorio(); break;
 		case 4: exit(0); break;
-		default: telaSistema();
+		default: puts("Opção invalida...");
 	}
 }
 
